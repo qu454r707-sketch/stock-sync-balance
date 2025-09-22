@@ -1,0 +1,219 @@
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, TrendingUp, TrendingDown, Upload, BarChart3 } from "lucide-react";
+import { HoldingTable } from "@/components/HoldingTable";
+import { PortfolioChart } from "@/components/PortfolioChart";
+import { RebalanceDialog } from "@/components/RebalanceDialog";
+import { useToast } from "@/hooks/use-toast";
+
+// Mock data - this will be replaced with Supabase data
+const mockPortfolios = {
+  "CANSLIM_QUANT": {
+    id: "CANSLIM_QUANT",
+    name: "Canslim Quant Portfolio",
+    currentValue: 2446129.72,
+    totalInvestment: 2583275.59,
+    totalReturns: -40430.45,
+    returnPercentage: -1.57,
+    holdings: [
+      {
+        ticker: "FORTIS",
+        stockName: "Fortis Healthcare Ltd",
+        currentPrice: 929.75,
+        avgBuyPrice: 750.45,
+        returns: 23.89,
+        weightage: 4.02,
+        shares: 106,
+        currentValue: 98553.5
+      },
+      {
+        ticker: "KIMS",
+        stockName: "Krishna Institute of Medical Sciences Ltd", 
+        currentPrice: 736.95,
+        avgBuyPrice: 649.03,
+        returns: 13.54,
+        weightage: 5.00,
+        shares: 166,
+        currentValue: 122333.7
+      },
+      {
+        ticker: "RADICO",
+        stockName: "Radico Khaitan Ltd",
+        currentPrice: 2896.70,
+        avgBuyPrice: 2522.05,
+        returns: 14.85,
+        weightage: 2.48,
+        shares: 21,
+        currentValue: 60830.7
+      },
+      {
+        ticker: "NH",
+        stockName: "Narayana Hrudayalaya Ltd",
+        currentPrice: 1766.30,
+        avgBuyPrice: 1854.35,
+        returns: -4.74,
+        weightage: 6.06,
+        shares: 84,
+        currentValue: 148369.2
+      },
+      {
+        ticker: "ICICIBANK",
+        stockName: "ICICI Bank Ltd",
+        currentPrice: 1394.20,
+        avgBuyPrice: 1432.86,
+        returns: -2.69,
+        weightage: 14.30,
+        shares: 251,
+        currentValue: 349943.2
+      }
+    ]
+  }
+};
+
+const PortfolioDetails = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [rebalanceDialogOpen, setRebalanceDialogOpen] = useState(false);
+
+  const portfolio = id ? mockPortfolios[id as keyof typeof mockPortfolios] : null;
+
+  if (!portfolio) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Portfolio Not Found</h1>
+          <Button onClick={() => navigate("/")}>Back to Dashboard</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const isPositive = portfolio.totalReturns >= 0;
+
+  const chartData = portfolio.holdings.map(holding => ({
+    name: holding.ticker,
+    value: holding.currentValue,
+    ticker: holding.ticker
+  })).sort((a, b) => b.value - a.value);
+
+  const handleRebalance = (portfolioId: string, file: File) => {
+    // This will be implemented with Supabase
+    toast({
+      title: "Rebalancing Started",
+      description: `Processing rebalancing for ${portfolio.name}`,
+    });
+  };
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="sm" onClick={() => navigate("/")}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">{portfolio.name}</h1>
+            <p className="text-muted-foreground">Portfolio ID: {portfolio.id}</p>
+          </div>
+        </div>
+        <Button onClick={() => setRebalanceDialogOpen(true)}>
+          <Upload className="h-4 w-4 mr-2" />
+          Rebalance Portfolio
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Current Value</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">₹{portfolio.currentValue.toLocaleString()}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total Investment</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">₹{portfolio.totalInvestment.toLocaleString()}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total Returns</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${isPositive ? 'text-success' : 'text-destructive'}`}>
+              ₹{portfolio.totalReturns.toLocaleString()}
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Return %</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2">
+              <Badge variant={isPositive ? "default" : "destructive"}>
+                {isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+                {portfolio.returnPercentage.toFixed(2)}%
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="holdings" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="holdings">Holdings</TabsTrigger>
+          <TabsTrigger value="allocation">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Allocation
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="holdings" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Holdings ({portfolio.holdings.length} stocks)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <HoldingTable holdings={portfolio.holdings} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="allocation" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Portfolio Allocation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PortfolioChart data={chartData} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      <RebalanceDialog
+        open={rebalanceDialogOpen}
+        onOpenChange={setRebalanceDialogOpen}
+        portfolioId={portfolio.id}
+        portfolioName={portfolio.name}
+        onRebalance={handleRebalance}
+      />
+    </div>
+  );
+};
+
+export default PortfolioDetails;
