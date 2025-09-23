@@ -8,6 +8,7 @@ import { ArrowLeft, TrendingUp, TrendingDown, Upload, BarChart3 } from "lucide-r
 import { HoldingTable } from "@/components/HoldingTable";
 import { PortfolioChart } from "@/components/PortfolioChart";
 import { RebalanceDialog } from "@/components/RebalanceDialog";
+import { AddHoldingDialog } from "@/components/AddHoldingDialog";
 import { useToast } from "@/hooks/use-toast";
 
 // Mock data - this will be replaced with Supabase data
@@ -102,10 +103,28 @@ const PortfolioDetails = () => {
   })).sort((a, b) => b.value - a.value);
 
   const handleRebalance = (portfolioId: string, file: File) => {
-    // This will be implemented with Supabase
+    // This will be implemented with API call
     toast({
       title: "Rebalancing Started",
       description: `Processing rebalancing for ${portfolio.name}`,
+    });
+  };
+
+  const handleAddHolding = (portfolioId: string, holdingData: { ticker: string; shares: number; avgBuyPrice: number }) => {
+    // This will be implemented with API call
+    console.log("Adding holding to portfolio:", portfolioId, holdingData);
+    toast({
+      title: "Adding Holding",
+      description: `Adding ${holdingData.shares} shares of ${holdingData.ticker}`,
+    });
+  };
+
+  const handleRemoveHolding = (ticker: string) => {
+    // This will be implemented with API call
+    console.log("Removing holding:", ticker);
+    toast({
+      title: "Removing Holding",
+      description: `Removing ${ticker} from portfolio`,
     });
   };
 
@@ -184,11 +203,18 @@ const PortfolioDetails = () => {
         
         <TabsContent value="holdings" className="space-y-4">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <CardTitle>Holdings ({portfolio.holdings.length} stocks)</CardTitle>
+              <AddHoldingDialog 
+                portfolioId={portfolio.id} 
+                onAddHolding={handleAddHolding}
+              />
             </CardHeader>
             <CardContent>
-              <HoldingTable holdings={portfolio.holdings} />
+              <HoldingTable 
+                holdings={portfolio.holdings} 
+                onRemoveHolding={handleRemoveHolding}
+              />
             </CardContent>
           </Card>
         </TabsContent>

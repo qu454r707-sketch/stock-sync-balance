@@ -206,7 +206,79 @@ NVDA,10.0
 }
 ```
 
-#### 6. Get Stock Prices
+#### 6. Add Holding to Portfolio
+```http
+POST /portfolios/:id/holdings
+```
+
+**Request Body:**
+```json
+{
+  "ticker": "AAPL",
+  "shares": 100,
+  "avgBuyPrice": 150.50
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Holding added successfully",
+  "data": {
+    "holding": {
+      "ticker": "AAPL",
+      "stockName": "Apple Inc",
+      "currentPrice": 150.25,
+      "avgBuyPrice": 150.50,
+      "returns": -0.17,
+      "weightage": 8.5,
+      "shares": 100,
+      "currentValue": 15025.00
+    },
+    "portfolio": {
+      "id": "PORTFOLIO_001",
+      "currentValue": 465025.00,
+      "totalInvestment": 412550.00,
+      "totalReturns": 52475.00,
+      "returnPercentage": 12.72,
+      "holdingsCount": 4,
+      "updatedAt": "2024-01-20T17:00:00Z"
+    }
+  }
+}
+```
+
+#### 7. Remove Holding from Portfolio
+```http
+DELETE /portfolios/:id/holdings/:ticker
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Holding removed successfully",
+  "data": {
+    "removedHolding": {
+      "ticker": "AAPL",
+      "shares": 100,
+      "currentValue": 15025.00
+    },
+    "portfolio": {
+      "id": "PORTFOLIO_001",
+      "currentValue": 410000.00,
+      "totalInvestment": 397512.50,
+      "totalReturns": 12487.50,
+      "returnPercentage": 3.14,
+      "holdingsCount": 3,
+      "updatedAt": "2024-01-20T17:15:00Z"
+    }
+  }
+}
+```
+
+#### 8. Get Stock Prices
 ```http
 GET /stocks/prices?tickers=AAPL,GOOGL,MSFT
 ```

@@ -7,7 +7,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, TrendingDown, Trash2 } from "lucide-react";
 
 interface Holding {
   ticker: string;
@@ -22,9 +23,10 @@ interface Holding {
 
 interface HoldingTableProps {
   holdings: Holding[];
+  onRemoveHolding?: (ticker: string) => void;
 }
 
-export const HoldingTable = ({ holdings }: HoldingTableProps) => {
+export const HoldingTable = ({ holdings, onRemoveHolding }: HoldingTableProps) => {
   return (
     <div className="rounded-md border">
       <Table>
@@ -38,6 +40,7 @@ export const HoldingTable = ({ holdings }: HoldingTableProps) => {
             <TableHead className="text-right">Weightage</TableHead>
             <TableHead className="text-right">Shares</TableHead>
             <TableHead className="text-right">Current Value</TableHead>
+            {onRemoveHolding && <TableHead className="w-[50px]">Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -58,6 +61,18 @@ export const HoldingTable = ({ holdings }: HoldingTableProps) => {
                 <TableCell className="text-right">{holding.weightage.toFixed(2)}%</TableCell>
                 <TableCell className="text-right">{holding.shares}</TableCell>
                 <TableCell className="text-right font-semibold">₹{holding.currentValue.toLocaleString()}</TableCell>
+                {onRemoveHolding && (
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onRemoveHolding(holding.ticker)}
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                )}
               </TableRow>
             );
           })}
