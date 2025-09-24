@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -76,11 +76,11 @@ const mockPortfolios = {
 };
 
 const PortfolioDetails = () => {
-  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [rebalanceDialogOpen, setRebalanceDialogOpen] = useState(false);
 
+  const id = sessionStorage.getItem('selectedPortfolioId');
   const portfolio = id ? mockPortfolios[id as keyof typeof mockPortfolios] : null;
 
   if (!portfolio) {

@@ -31,11 +31,13 @@ const Index = () => {
   const totalReturnPercentage = totalInvestment > 0 ? (totalReturns / totalInvestment) * 100 : 0;
 
   const handleViewDetails = (portfolioId: string) => {
-    navigate(`/portfolio/${portfolioId}`);
+    sessionStorage.setItem('selectedPortfolioId', portfolioId);
+    navigate('/portfolio');
   };
 
   const handleRebalance = (portfolioId: string) => {
-    navigate(`/portfolio/${portfolioId}`);
+    sessionStorage.setItem('selectedPortfolioId', portfolioId);
+    navigate('/portfolio');
   };
 
   const handleCreatePortfolio = (id: string, name: string) => {

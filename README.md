@@ -28,11 +28,50 @@ This frontend expects a backend API with the following endpoints:
 http://localhost:3001/api
 ```
 
+### Authentication
+
+All API endpoints require authentication using JWT access/refresh tokens:
+
+**Headers Required:**
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**Token Refresh Endpoint:**
+```http
+POST /auth/refresh
+```
+
+**Request Body:**
+```json
+{
+  "refreshToken": "your-refresh-token"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "new-access-token",
+    "refreshToken": "new-refresh-token",
+    "expiresIn": 3600
+  }
+}
+```
+
+**Authentication Errors:**
+- `401`: Unauthorized (invalid or expired token)
+- `403`: Forbidden (valid token but insufficient permissions)
+
 ### Endpoints
 
 #### 1. Get All Portfolios
 ```http
 GET /portfolios
+Authorization: Bearer <access_token>
 ```
 
 **Response:**
@@ -58,6 +97,7 @@ GET /portfolios
 #### 2. Get Portfolio Details
 ```http
 GET /portfolios/:id
+Authorization: Bearer <access_token>
 ```
 
 **Response:**
@@ -92,6 +132,7 @@ GET /portfolios/:id
 #### 3. Create Portfolio
 ```http
 POST /portfolios
+Authorization: Bearer <access_token>
 ```
 
 **Request Body:**
@@ -124,6 +165,7 @@ POST /portfolios
 #### 4. Upload Holdings CSV
 ```http
 POST /portfolios/:id/upload-csv
+Authorization: Bearer <access_token>
 ```
 
 **Content-Type:** `multipart/form-data`
@@ -160,6 +202,7 @@ MSFT,75,300.25
 #### 5. Rebalance Portfolio
 ```http
 POST /portfolios/:id/rebalance
+Authorization: Bearer <access_token>
 ```
 
 **Content-Type:** `multipart/form-data`
@@ -209,6 +252,7 @@ NVDA,10.0
 #### 6. Add Holding to Portfolio
 ```http
 POST /portfolios/:id/holdings
+Authorization: Bearer <access_token>
 ```
 
 **Request Body:**
@@ -252,6 +296,7 @@ POST /portfolios/:id/holdings
 #### 7. Remove Holding from Portfolio
 ```http
 DELETE /portfolios/:id/holdings/:ticker
+Authorization: Bearer <access_token>
 ```
 
 **Response:**
@@ -281,6 +326,7 @@ DELETE /portfolios/:id/holdings/:ticker
 #### 8. Get Stock Prices
 ```http
 GET /stocks/prices?tickers=AAPL,GOOGL,MSFT
+Authorization: Bearer <access_token>
 ```
 
 **Response:**
