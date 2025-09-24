@@ -32,23 +32,33 @@ http://localhost:3001/api
 
 ### Authentication
 
-All API endpoints require authentication using JWT access/refresh tokens:
+All API endpoints require authentication using JWT access/refresh tokens.
 
-**Headers Required:**
+#### Authentication Flow
+
+1. **Login/Registration**: User authenticates and receives access and refresh tokens
+2. **API Requests**: Include access token in Authorization header for all requests  
+3. **Token Refresh**: When access token expires, use refresh token to get new tokens
+4. **Token Storage**: Store tokens securely (recommended: in-memory for session only)
+
+#### Required Headers
 ```
 Authorization: Bearer <access_token>
 Content-Type: application/json
 ```
 
-**Token Refresh Endpoint:**
+#### Authentication Endpoints
+
+**Login**
 ```http
-POST /auth/refresh
+POST /auth/login
 ```
 
 **Request Body:**
 ```json
 {
-  "refreshToken": "your-refresh-token"
+  "email": "user@example.com",
+  "password": "password123"
 }
 ```
 
@@ -57,16 +67,65 @@ POST /auth/refresh
 {
   "success": true,
   "data": {
-    "accessToken": "new-access-token",
-    "refreshToken": "new-refresh-token",
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expiresIn": 3600,
+    "user": {
+      "id": "user123",
+      "email": "user@example.com",
+      "name": "John Doe"
+    }
+  }
+}
+```
+
+**Token Refresh**
+```http
+POST /auth/refresh
+```
+
+**Request Body:**
+```json
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "expiresIn": 3600
   }
 }
 ```
 
-**Authentication Errors:**
-- `401`: Unauthorized (invalid or expired token)
-- `403`: Forbidden (valid token but insufficient permissions)
+**Logout**
+```http
+POST /auth/logout
+Authorization: Bearer <access_token>
+```
+
+**Request Body:**
+```json
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### Security Considerations
+
+⚠️ **Important Security Notes:**
+- **Never store tokens in localStorage or sessionStorage** - this creates security vulnerabilities
+- **Recommended**: Store tokens in memory only (lost on page refresh, requiring re-login)
+- **Alternative**: Use secure HTTP-only cookies (requires backend CORS configuration)
+- **Always use HTTPS** in production to prevent token interception
+- **Implement automatic token refresh** before access token expires
+
+For production applications, consider using [Supabase](https://docs.lovable.dev/integrations/supabase) which provides secure, built-in authentication.
 
 ### Endpoints
 
@@ -402,7 +461,7 @@ All endpoints return errors in this format:
 
 **Common HTTP Status Codes:**
 - `200`: Success
-- `201`: Created
+- `201`: Created  
 - `400`: Bad Request (validation errors)
 - `401`: Unauthorized (invalid or expired token)
 - `403`: Forbidden (valid token but insufficient permissions)
@@ -410,6 +469,76 @@ All endpoints return errors in this format:
 - `422`: Unprocessable Entity (file format errors)
 - `429`: Too Many Requests (rate limiting)
 - `500`: Internal Server Error
+
+### Frontend Authentication Implementation
+
+The frontend should implement automatic token refresh and proper error handling:
+
+```javascript
+// Example token management
+class AuthService {
+  constructor() {
+    this.accessToken = null;
+    this.refreshToken = null;
+  }
+
+  async makeAuthenticatedRequest(url, options = {}) {
+    try {
+      // Add auth header
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          ...options.headers,
+          'Authorization': `Bearer ${this.accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Handle token expiration
+      if (response.status === 401) {
+        await this.refreshAccessToken();
+        // Retry original request
+        return fetch(url, {
+          ...options,
+          headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${this.accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Request failed:', error);
+      throw error;
+    }
+  }
+
+  async refreshAccessToken() {
+    const response = await fetch('/api/auth/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: this.refreshToken })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      this.accessToken = data.data.accessToken;
+      this.refreshToken = data.data.refreshToken;
+    } else {
+      // Refresh failed, redirect to login
+      this.logout();
+    }
+  }
+
+  logout() {
+    this.accessToken = null;
+    this.refreshToken = null;
+    window.location.href = '/login';
+  }
+}
+```
 
 ## Features
 

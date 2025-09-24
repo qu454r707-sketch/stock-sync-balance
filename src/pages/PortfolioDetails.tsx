@@ -11,7 +11,7 @@ import { RebalanceDialog } from "@/components/RebalanceDialog";
 import { AddHoldingDialog } from "@/components/AddHoldingDialog";
 import { useToast } from "@/hooks/use-toast";
 
-// Mock data - this will be replaced with Supabase data
+// Mock data - this will be replaced with API data
 const mockPortfolios = {
   "CANSLIM_QUANT": {
     id: "CANSLIM_QUANT",

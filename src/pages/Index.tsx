@@ -7,7 +7,7 @@ import { CreatePortfolioDialog } from "@/components/CreatePortfolioDialog";
 import { BarChart3, TrendingUp, Wallet, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// Mock data - this will be replaced with Supabase data
+// Mock data - this will be replaced with API data
 const mockPortfolios = [
   {
     id: "CANSLIM_QUANT",
