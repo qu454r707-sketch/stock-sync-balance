@@ -125,7 +125,7 @@ Authorization: Bearer <access_token>
 - **Always use HTTPS** in production to prevent token interception
 - **Implement automatic token refresh** before access token expires
 
-For production applications, consider using [Supabase](https://docs.lovable.dev/integrations/supabase) which provides secure, built-in authentication.
+For production applications, consider implementing your own authentication backend with JWT tokens and secure session management.
 
 ### Endpoints
 
