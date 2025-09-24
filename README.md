@@ -5,9 +5,11 @@ A React-based portfolio management application for tracking and rebalancing stoc
 ## Features
 
 - **Portfolio Management**: Create and view multiple portfolios
-- **Holdings Tracking**: View detailed holdings with real-time performance metrics
+- **Holdings Tracking**: View detailed holdings with real-time performance metrics  
 - **Portfolio Analytics**: Visual charts showing portfolio allocation
 - **Rebalancing**: Upload CSV files to rebalance portfolios
+- **Price Updates**: Refresh latest stock prices for all holdings
+- **Authentication**: JWT-based access/refresh token authentication
 - **Responsive Design**: Works on desktop and mobile devices
 
 ## Technology Stack
@@ -352,6 +354,40 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### 9. Refresh Portfolio Prices
+```http
+POST /portfolios/:id/refresh-prices
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Prices updated successfully",
+  "data": {
+    "updatedHoldings": 5,
+    "portfolio": {
+      "id": "PORTFOLIO_001",
+      "currentValue": 455000.00,
+      "totalReturns": 57487.50,
+      "returnPercentage": 14.45,
+      "updatedAt": "2024-01-20T18:00:00Z"
+    },
+    "priceUpdates": [
+      {
+        "ticker": "AAPL",
+        "oldPrice": 150.25,
+        "newPrice": 152.30,
+        "change": 2.05,
+        "changePercent": 1.36
+      }
+    ]
+  }
+}
+```
+```
+
 ### Error Responses
 
 All endpoints return errors in this format:
@@ -368,9 +404,22 @@ All endpoints return errors in this format:
 - `200`: Success
 - `201`: Created
 - `400`: Bad Request (validation errors)
+- `401`: Unauthorized (invalid or expired token)
+- `403`: Forbidden (valid token but insufficient permissions)
 - `404`: Not Found
 - `422`: Unprocessable Entity (file format errors)
+- `429`: Too Many Requests (rate limiting)
 - `500`: Internal Server Error
+
+## Features
+
+- **Portfolio Management**: Create and view multiple portfolios
+- **Holdings Tracking**: View detailed holdings with real-time performance metrics
+- **Portfolio Analytics**: Visual charts showing portfolio allocation
+- **Rebalancing**: Upload CSV files to rebalance portfolios
+- **Price Updates**: Refresh latest stock prices for all holdings
+- **Authentication**: JWT-based access/refresh token authentication
+- **Responsive Design**: Works on desktop and mobile devices
 
 ## Data Models
 

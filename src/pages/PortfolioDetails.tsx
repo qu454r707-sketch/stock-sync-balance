@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, TrendingUp, TrendingDown, Upload, BarChart3 } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, Upload, BarChart3, RefreshCw } from "lucide-react";
 import { HoldingTable } from "@/components/HoldingTable";
 import { PortfolioChart } from "@/components/PortfolioChart";
 import { RebalanceDialog } from "@/components/RebalanceDialog";
@@ -128,6 +128,15 @@ const PortfolioDetails = () => {
     });
   };
 
+  const handleRefreshPrices = () => {
+    // This will be implemented with API call
+    console.log("Refreshing prices for portfolio:", portfolio?.id);
+    toast({
+      title: "Refreshing Prices",
+      description: "Updating latest stock prices for all holdings",
+    });
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -141,10 +150,16 @@ const PortfolioDetails = () => {
             <p className="text-muted-foreground">Portfolio ID: {portfolio.id}</p>
           </div>
         </div>
-        <Button onClick={() => setRebalanceDialogOpen(true)}>
-          <Upload className="h-4 w-4 mr-2" />
-          Rebalance Portfolio
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRefreshPrices}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh Prices
+          </Button>
+          <Button onClick={() => setRebalanceDialogOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Rebalance Portfolio
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
